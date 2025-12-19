@@ -12,9 +12,7 @@ public class UserDetailsServiceImpl implements UserDetailsService{
 
 	@Autowired
 	private UserService userService;
-	
-//	private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-	
+		
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 		try {
