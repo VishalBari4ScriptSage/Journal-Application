@@ -2,6 +2,7 @@ package org.ejournal.app.module.service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.bson.types.ObjectId;
@@ -26,9 +27,18 @@ public class UserService {
 	
 	public User createUser(User user) {
 		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		user.setUserRoles(new ArrayList<>(Arrays.asList("USER")));
 		user.setCreateDate(LocalDateTime.now());
 		return userRepository.save(user);
 	}
+	
+	public User createAdmin(User user) {
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		user.getUserRoles().addAll(Arrays.asList("ADMIN","USER"));		 
+		user.setCreateDate(LocalDateTime.now());
+		return userRepository.save(user);
+	}
+
 
 	public User savedUser(User user) {
 		return userRepository.save(user);

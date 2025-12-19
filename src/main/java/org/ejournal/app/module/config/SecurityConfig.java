@@ -19,21 +19,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private UserDetailsServiceImpl detailsServiceImpl;
 	
+	private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 	
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-		auth.userDetailsService(detailsServiceImpl).passwordEncoder(getPasswordEncoder());
+		auth.userDetailsService(detailsServiceImpl).passwordEncoder(passwordEncoder);
 	}
 	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
 		http.authorizeHttpRequests()
-			.antMatchers("/user").authenticated()
+			.antMatchers("/user","/journal").authenticated()
+			.antMatchers("/admin").hasRole("ADMIN")
 			.anyRequest().permitAll()
 			.and()
-			.httpBasic();
-	
+			.httpBasic();		
+		
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			.and()
 			.csrf().disable();

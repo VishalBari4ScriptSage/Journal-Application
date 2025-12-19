@@ -23,7 +23,6 @@ public class PublicController {
 	@PostMapping("/create-user")
 	public ResponseEntity<String> createUser(@RequestBody User user){
 		try {
-			user.getUserRoles().add("USER");		 
 			User savedUser = userService.createUser(user);
 			if(savedUser != null) {
 				log.info("created {} : {} user in database : access from public",savedUser.getId(),savedUser.getUsername());
@@ -33,7 +32,7 @@ public class PublicController {
 			return new ResponseEntity<>("Error - User not Created : Something went wrong !!! " , HttpStatus.NOT_ACCEPTABLE);
 		}
 		catch(Exception e) {
-			log.error("Exception occure : {} is not created : access from public",user.getUsername());
+			log.error("Exception occure : {} is not created : access from public",user.getUsername(),e);
 			return new ResponseEntity<>("Exception Occure",HttpStatus.BAD_REQUEST);			
 		}
 	}

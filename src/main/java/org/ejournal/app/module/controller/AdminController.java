@@ -1,7 +1,6 @@
 package org.ejournal.app.module.controller;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.ejournal.app.module.entity.JournalEntry;
@@ -47,7 +46,7 @@ public class AdminController {
 			return new ResponseEntity<>("No user found - Empty user list !!!", HttpStatus.NOT_FOUND);
 		}
 		catch(Exception e) {
-			log.error("Exception occure : not found all user journal entries in database : access by {} admin",authUsername);
+			log.error("Exception occure : not found all user journal entries in database : access by {} admin",authUsername,e);
 			return new ResponseEntity<>("Exception Occure : all user details !!!", HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -67,7 +66,7 @@ public class AdminController {
 			return new ResponseEntity<>("No entry found - Empty journal list !!!", HttpStatus.NOT_FOUND);
 		}
 		catch(Exception e) {
-			log.error("Exception occure : not found all user journal entries in database : access by {} admin",authUsername);
+			log.error("Exception occure : not found all user journal entries in database : access by {} admin",authUsername,e);
 			return new ResponseEntity<>("Exception Occure : all journal entry !!!", HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -79,8 +78,7 @@ public class AdminController {
 		String authUsername = authentication.getName();
 		
 		try {
-			user.getUserRoles().addAll(Arrays.asList("ADMIN","USER"));		 
-			User savedUser = userService.createUser(user);
+			User savedUser = userService.createAdmin(user);
 			if(savedUser != null) {
 				log.info("created {} : {} user in database : access from public",savedUser.getId(),savedUser.getUsername());
 				return new ResponseEntity<>("User Created with id : " + savedUser.getId(), HttpStatus.CREATED);				
@@ -89,7 +87,7 @@ public class AdminController {
 			return new ResponseEntity<>("Error - User not Created : Something went wrong !!! " , HttpStatus.NOT_ACCEPTABLE);
 		}
 		catch(Exception e) {
-			log.error("Exception occure : not create {} user in database : access by {} admin",user.getUsername(),authUsername);
+			log.error("Exception occure : not create {} user in database : access by {} admin",user.getUsername(),authUsername,e);
 			return new ResponseEntity<>("Exception Occure : creating admin !!!", HttpStatus.BAD_REQUEST);			
 		}
 	}
