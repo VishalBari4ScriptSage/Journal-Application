@@ -34,21 +34,21 @@ public class UserController {
 		User user = userService.findUserByUserid(id);
 		if(user != null) {
 			log.info("{} is search in databse : search by {}",user.getUsername(),authUsername);
-			return new ResponseEntity<>(user, HttpStatus.FOUND);
+			return new ResponseEntity<>("User found in database : "+user, HttpStatus.FOUND);
 		}
 		log.error("{} is not found OR {} not in database : search by {}",id,authUsername);
 		return new ResponseEntity<>("Error - User Not Found", HttpStatus.NOT_FOUND);
 	}
 	
 	@GetMapping("/get-user/username/{username}")
-	public ResponseEntity<?> getUserByUserid(@PathVariable String username){
+	public ResponseEntity<String> getUserByUserid(@PathVariable String username){
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String authUsername = authentication.getName();
 
 		User user = userService.findUserByUsername(username);
 		if(user != null) {
 			log.info("{} is search in database : search by {}",user.getUsername(),authUsername);
-			return new ResponseEntity<>(user, HttpStatus.FOUND);
+			return new ResponseEntity<>("User found in database : "+user, HttpStatus.FOUND);
 		}
 		log.error("{} is not found OR {} not in database : search by {}",username,authUsername);
 		return new ResponseEntity<>("Error - User Not Found", HttpStatus.NOT_FOUND);

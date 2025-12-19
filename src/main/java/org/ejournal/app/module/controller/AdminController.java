@@ -11,14 +11,19 @@ import org.ejournal.app.module.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
 @RequestMapping("/admin")
+@Slf4j
 public class AdminController {
 
 	@Autowired
@@ -26,47 +31,68 @@ public class AdminController {
 	
 	@Autowired
 	private JournalService journalService;
-	
+
 	@GetMapping("/all-user")
-	public ResponseEntity<?> getAllUserDetails(){
+	public ResponseEntity<String> getAllUserDetails(){
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String authUsername = authentication.getName();
+		
 		try {
 			List<User> userList = new ArrayList<>(userService.allUserDetails());
 			if(!userList.isEmpty()) {
-				return new ResponseEntity<>(userList , HttpStatus.FOUND);				
+				log.info("search : found all user journal entries in database : access by {} admin",authUsername);
+				return new ResponseEntity<>("User list found : "+userList , HttpStatus.FOUND);				
 			}
+			log.error("un-authorized search : not found all user journal entries in database : access by {} admin",authUsername);
 			return new ResponseEntity<>("No user found - Empty user list !!!", HttpStatus.NOT_FOUND);
 		}
 		catch(Exception e) {
-			return new ResponseEntity<>("Exception Occure !!!", HttpStatus.BAD_REQUEST);
+			log.error("Exception occure : not found all user journal entries in database : access by {} admin",authUsername);
+			return new ResponseEntity<>("Exception Occure : all user details !!!", HttpStatus.BAD_REQUEST);
 		}
 	}
 	
 	@GetMapping("/all-journal-entry")
-	public ResponseEntity<?> getAllJournalEntries(){
+	public ResponseEntity<String> getAllJournalEntries(){
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String authUsername = authentication.getName();
+
 		try {
 			List<JournalEntry> entryList = journalService.getAllJournalEntry();
 			if(!entryList.isEmpty()) {
-				return new ResponseEntity<>(entryList , HttpStatus.FOUND);				
+				log.info("search : found all user journal entries in database : access by {} admin",authUsername);
+				return new ResponseEntity<>("All journal entries found : "+entryList , HttpStatus.FOUND);				
 			}
+			log.error("un-authorized search : not found all user journal entries in database : access by {} admin",authUsername);
 			return new ResponseEntity<>("No entry found - Empty journal list !!!", HttpStatus.NOT_FOUND);
 		}
 		catch(Exception e) {
-			return new ResponseEntity<>("Exception Occure !!!", HttpStatus.BAD_REQUEST);
+			log.error("Exception occure : not found all user journal entries in database : access by {} admin",authUsername);
+			return new ResponseEntity<>("Exception Occure : all journal entry !!!", HttpStatus.BAD_REQUEST);
 		}
 	}
 
 
 	@PostMapping("/create-admin")
 	public ResponseEntity<String> createUser(@RequestBody User user){
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String authUsername = authentication.getName();
 		
-		user.getUserRoles().addAll(Arrays.asList("ADMIN","USER"));		 
-		User savedUser = userService.createUser(user);
-		if(savedUser != null) {
-			return new ResponseEntity<>("User Created with id : " + savedUser.getId(), HttpStatus.CREATED);				
+		try {
+			user.getUserRoles().addAll(Arrays.asList("ADMIN","USER"));		 
+			User savedUser = userService.createUser(user);
+			if(savedUser != null) {
+				log.info("created {} : {} user in database : access from public",savedUser.getId(),savedUser.getUsername());
+				return new ResponseEntity<>("User Created with id : " + savedUser.getId(), HttpStatus.CREATED);				
+			}	
+			log.error("un-authorized create : not create {} user in database : access by {} admin",user.getUsername(),authUsername);
+			return new ResponseEntity<>("Error - User not Created : Something went wrong !!! " , HttpStatus.NOT_ACCEPTABLE);
 		}
-		return new ResponseEntity<>("Error - User not Created : Something went wrong !!! " , HttpStatus.NOT_ACCEPTABLE);
+		catch(Exception e) {
+			log.error("Exception occure : not create {} user in database : access by {} admin",user.getUsername(),authUsername);
+			return new ResponseEntity<>("Exception Occure : creating admin !!!", HttpStatus.BAD_REQUEST);			
+		}
 	}
-	
 
 	
 	
